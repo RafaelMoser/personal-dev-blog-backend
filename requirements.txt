@@ -1,4 +1,4 @@
 flask
 flask-smorest
 python-dotenv
-pymongo
+flask-pymongo

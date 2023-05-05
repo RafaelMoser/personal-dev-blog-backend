@@ -8,14 +8,18 @@ blp = Blueprint("articles", __name__, description="Article fetcher")
 
 
 @blp.route("/article/list/<integer:page>")
-class ArticleListPageFetcher:
+class ArticleListPage(MethodView):
     @blp.response(200, ArticleSchema(many=True))
     def get(this, page):
         pass
 
 
 @blp.route("/article/<string:article_id>")
-class SingleArticleFetcher(MethodView):
+class SingleArticle(MethodView):
     @blp.response(200, ArticleSchema)
     def get(this, article_id):
+        pass
+    
+    @blp.response(200, ArticleSchema)
+    def post(this):
         pass
