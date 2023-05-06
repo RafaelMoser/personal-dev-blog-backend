@@ -1,12 +1,13 @@
 from flask import Flask
 from flask_smorest import Api
-from flask_pymongo import PyMongo
 from dotenv import dotenv_values
 
-from resources.blog_articles import blp as BlogArticlesBlueprint
+from db import mongo
+
+from resources.blog_articles import article as BlogArticlesBlueprint
+from resources.personal_info import blp as PersonalInfoBlueprint
 
 config = dotenv_values()
-mongo = PyMongo()
 
 
 def create_app():
@@ -22,10 +23,12 @@ def create_app():
         "OPENAPI_SWAGGER_UI_URL"
     ] = "https://cdn.jsdelivr.net/npm/swagger-ui-dist/"
     app.config["MONGO_URI"] = config["MONGODB_URI"]
+    print(config["MONGODB_URI"])
 
     mongo.init_app(app)
 
     api = Api(app)
     api.register_blueprint(BlogArticlesBlueprint)
+    api.register_blueprint(PersonalInfoBlueprint)
 
     return app

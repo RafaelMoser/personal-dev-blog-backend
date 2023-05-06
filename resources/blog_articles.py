@@ -1,25 +1,31 @@
-from flask import request
+from flask import request, jsonify
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
-
+from flask_pymongo import ObjectId
 from schemas import ArticleSchema
 
-blp = Blueprint("articles", __name__, description="Article fetcher")
+from db import mongo
+
+article = Blueprint("articles", __name__, description="Articles")
 
 
-@blp.route("/article/list/<integer:page>")
+@article.route("/article/list/<int:page>")
 class ArticleListPage(MethodView):
-    @blp.response(200, ArticleSchema(many=True))
+    @article.response(200, ArticleSchema(many=True))
     def get(this, page):
-        pass
+        return [i for i in mongo.db.get_collection("articles").find({})]
 
 
-@blp.route("/article/<string:article_id>")
+@article.route("/article/<string:article_id>")
 class SingleArticle(MethodView):
-    @blp.response(200, ArticleSchema)
+    @article.response(200, ArticleSchema)
     def get(this, article_id):
-        pass
-    
-    @blp.response(200, ArticleSchema)
+        article = mongo.db.get_collection("articles").find_one(
+            {"_id": ObjectId(article_id)}
+        )
+        print(article)
+        return article
+
+    @article.response(200, ArticleSchema)
     def post(this):
         pass
