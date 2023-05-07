@@ -5,8 +5,8 @@ from dotenv import dotenv_values
 
 from db import mongo
 
-from resources.blog_articles import article as BlogArticlesBlueprint
-from resources.personal_info import blp as PersonalInfoBlueprint
+from resources.blog_articles import article
+from resources.personal_info import personalInfo
 
 config = dotenv_values()
 
@@ -29,7 +29,7 @@ def create_app():
     mongo.init_app(app)
 
     api = Api(app)
-    api.register_blueprint(BlogArticlesBlueprint)
-    api.register_blueprint(PersonalInfoBlueprint)
+    api.register_blueprint(article)
+    api.register_blueprint(personalInfo)
 
     return app

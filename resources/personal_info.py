@@ -8,10 +8,10 @@ from db import mongo
 
 PERSONAL_INFO_ID = ObjectId("645692cc0b436ad55e7c0f1d")
 
-blp = Blueprint("personalInfo", __name__, description="Personal Information")
+personalInfo = Blueprint("personalInfo", __name__, description="Personal Information")
 
 
-@blp.route("/aboutme/")
+@personalInfo.route("/aboutme/")
 class ProfilePicture(MethodView):
     def get(this):
         data = mongo.db.get_collection("personal-info").find_one(
