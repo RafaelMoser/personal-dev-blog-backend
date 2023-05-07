@@ -1,7 +1,8 @@
-from flask import request
+from flask import request, jsonify
 from flask.views import MethodView
-from flask_smorest import Blueprint, abort
+from flask_smorest import Blueprint
 from flask_pymongo import ObjectId
+from time import sleep
 
 from db import mongo
 
@@ -10,10 +11,17 @@ PERSONAL_INFO_ID = ObjectId("645692cc0b436ad55e7c0f1d")
 blp = Blueprint("personalInfo", __name__, description="Personal Information")
 
 
-@blp.route("/aboutme/image")
+@blp.route("/aboutme/")
 class ProfilePicture(MethodView):
     def get(this):
         data = mongo.db.get_collection("personal-info").find_one(
             {"_id": PERSONAL_INFO_ID}
         )
-        return data["picture"]
+        return jsonify(
+            {
+                "profileImageUrl": data["profileImageUrl"],
+                "infoBlurb": data["infoBlurb"],
+                "github": data["github"],
+                "linkedIn": data["linkedin"],
+            }
+        )
