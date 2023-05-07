@@ -2,7 +2,6 @@ from flask import request, jsonify
 from flask.views import MethodView
 from flask_smorest import Blueprint
 from flask_pymongo import ObjectId
-from time import sleep
 
 from db import mongo
 
