@@ -3,48 +3,60 @@ from flask.views import MethodView
 from flask_smorest import Blueprint, abort
 from flask_pymongo import ObjectId
 from schemas import ArticleSchema
+from datetime import datetime
+from nanoid import generate
 
 from db import mongo
+
+PAGE_SIZE = 5
 
 article = Blueprint("articles", __name__, description="Articles")
 
 
-# @article.route("/newarticle/dummy")
-# class PublishArticle(MethodView):
-#     def get(this):
-#         # request_data = request.get_json()
-#         publishDate = datetime.datetime.now().__str__()
-#         article = {
-#             "title": "article title",
-#             "articleBody": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam id voluptatibus numquam temporibus iure ipsum architecto nobis suscipit, veniam fugiat qui ex a aperiam maiores aut quaerat. Temporibus, architecto natus!\n"
-#             + "Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam id voluptatibus numquam temporibus iure ipsum architecto nobis suscipit, veniam fugiat qui ex a aperiam maiores aut quaerat. Temporibus, architecto natus!\n"
-#             + "Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam id voluptatibus numquam temporibus iure ipsum architecto nobis suscipit, veniam fugiat qui ex a aperiam maiores aut quaerat. Temporibus, architecto natus!",
-#             "publishDate": publishDate,
-#         }
-#         try:
-#             result = mongo.db.articles.insert_one(article)
-#             print(result.acknowledged)
-#             return article["title"]
-#         except Exception as error:
-#             print(error)
-#             return jsonify({"E": error.__str__})
+@article.route("/newarticle/dummy")
+class PublishArticle(MethodView):
+    def get(this):
+        nanoId = generate(size=6)
+        while mongo.db.articles.count_documents({"nanoId": nanoId}) != 0:
+            nanoId = generate(size=6)
+        currentDateTime = datetime.now()
+        publishDate = (
+            f"{currentDateTime.year}/{currentDateTime.month}/{currentDateTime.day}"
+        )
+        publishTime = f"{currentDateTime.hour}:{currentDateTime.minute} {currentDateTime.astimezone().tzname()}"
+        article = {
+            "title": "article title " + nanoId,
+            "articleBody": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam id voluptatibus numquam temporibus iure ipsum architecto nobis suscipit, veniam fugiat qui ex a aperiam maiores aut quaerat. Temporibus, architecto natus!\n"
+            + "Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam id voluptatibus numquam temporibus iure ipsum architecto nobis suscipit, veniam fugiat qui ex a aperiam maiores aut quaerat. Temporibus, architecto natus!\n"
+            + "Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam id voluptatibus numquam temporibus iure ipsum architecto nobis suscipit, veniam fugiat qui ex a aperiam maiores aut quaerat. Temporibus, architecto natus!",
+            "publishDate": publishDate,
+            "publishTime": publishTime,
+            "nanoId": nanoId,
+        }
+        try:
+            mongo.db.articles.insert_one(article)
+            return {"title": article["title"], "nanoId": article["nanoId"]}
+        except Exception as error:
+            print(error)
+            return jsonify({"E": error.__str__})
 
 
 @article.route("/article/list/<int:page>")
 class ArticleListPage(MethodView):
     @article.response(200, ArticleSchema(many=True))
     def get(this, page):
-        start = (page - 1) * 5
-        end = page * 5
-        return [i for i in mongo.db.articles.find().sort("publishDate", -1)[start:end]]
+        offset = (page - 1) * PAGE_SIZE
+        return [
+            i
+            for i in mongo.db.articles.find().sort("publishDate", -1)[
+                offset : offset + PAGE_SIZE
+            ]
+        ]
 
 
 @article.route("/article/<string:article_id>")
 class SingleArticle(MethodView):
     @article.response(200)
     def get(this, article_id):
-        article = mongo.db.get_collection("articles").find_one(
-            {"_id": ObjectId(article_id)}
-        )
-        print(article)
+        article = mongo.db.get_collection("articles").find_one({"nanoid": article_id})
         return article
