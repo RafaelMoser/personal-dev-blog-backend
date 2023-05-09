@@ -9,7 +9,7 @@ from nanoid import generate
 from db import mongo
 
 PAGE_SIZE = 5
-
+TIMEZONE = "BRT"
 article = Blueprint("articles", __name__, description="Articles")
 
 
@@ -23,7 +23,7 @@ class PublishArticle(MethodView):
         publishDate = (
             f"{currentDateTime.year}/{currentDateTime.month}/{currentDateTime.day}"
         )
-        publishTime = f"{currentDateTime.hour}:{currentDateTime.minute} {currentDateTime.astimezone().tzname()}"
+        publishTime = f"{currentDateTime.hour}:{currentDateTime.minute} {TIMEZONE}"
         article = {
             "title": "article title " + nanoId,
             "articleBody": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam id voluptatibus numquam temporibus iure ipsum architecto nobis suscipit, veniam fugiat qui ex a aperiam maiores aut quaerat. Temporibus, architecto natus!\n"
@@ -35,7 +35,11 @@ class PublishArticle(MethodView):
         }
         try:
             mongo.db.articles.insert_one(article)
-            return {"title": article["title"], "nanoId": article["nanoId"]}
+            return {
+                "title": article["title"],
+                "nanoId": article["nanoId"],
+                "publishTime": publishTime,
+            }
         except Exception as error:
             print(error)
             return jsonify({"E": error.__str__})
