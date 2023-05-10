@@ -2,7 +2,7 @@ from flask import request, jsonify
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
 from flask_pymongo import ObjectId
-from schemas import ArticleSchema
+from schemas import ArticleSchema, PageCountSchema
 from datetime import datetime
 from nanoid import generate
 
@@ -64,3 +64,10 @@ class SingleArticle(MethodView):
     def get(this, article_id):
         article = mongo.db.get_collection("articles").find_one({"nanoid": article_id})
         return article
+
+
+@article.route("/article/pageCount")
+class PageCount(MethodView):
+    @article.response(200, PageCountSchema)
+    def get(this):
+        return {"pageCount": mongo.db.articles.count_documents({})}
