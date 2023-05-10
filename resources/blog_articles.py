@@ -1,14 +1,14 @@
 from flask import request, jsonify
 from flask.views import MethodView
-from flask_smorest import Blueprint, abort
-from flask_pymongo import ObjectId
+from flask_smorest import Blueprint
 from schemas import ArticleSchema, PageCountSchema
 from datetime import datetime
 from nanoid import generate
+import math
 
 from db import mongo
 
-PAGE_SIZE = 5
+PAGE_SIZE = 3
 TIMEZONE = "BRT"
 article = Blueprint("articles", __name__, description="Articles")
 
@@ -70,4 +70,6 @@ class SingleArticle(MethodView):
 class PageCount(MethodView):
     @article.response(200, PageCountSchema)
     def get(this):
-        return {"pageCount": mongo.db.articles.count_documents({})}
+        return {
+            "pageCount": math.ceil(mongo.db.articles.count_documents({}) / PAGE_SIZE)
+        }
