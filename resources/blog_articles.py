@@ -58,21 +58,23 @@ class SingleArticle(MethodView):
     @article.response(200, SingleArticleSchema)
     def get(this, nanoId):
         data = {"article": mongo.db.articles.find_one({"nanoId": nanoId})}
-        prev = mongo.db.articles.find({"_id": {"$lt": data["article"]["_id"]}}).sort(
-            "_id"
+        prev = list(
+            mongo.db.articles.find({"_id": {"$lt": data["article"]["_id"]}})
+            .sort([("_id", -1)])
+            .limit(1)
         )
-        next = mongo.db.articles.find({"_id": {"$gt": data["article"]["_id"]}}).sort(
-            "_id"
+        next = list(
+            mongo.db.articles.find({"_id": {"$gt": data["article"]["_id"]}})
+            .sort("_id")
+            .limit(1)
         )
-        print(prev[0])
-        print(next[0])
 
-        # if prev[0] is not None:
-        #     data["prevNanoId"] = prev[0]["nanoId"]
-        #     data["prevTitle"] = prev[0]["title"]
-        # if next[0] is not None:
-        #     data["nextNanoId"] = next[0]["nanoId"]
-        #     data["nextTitle"] = next[0]["title"]
+        if len(prev) != 0:
+            data["prevNanoId"] = prev[0]["nanoId"]
+            data["prevTitle"] = prev[0]["title"]
+        if len(next) != 0:
+            data["nextNanoId"] = next[0]["nanoId"]
+            data["nextTitle"] = next[0]["title"]
 
         return data
 
