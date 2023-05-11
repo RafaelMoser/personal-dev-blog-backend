@@ -25,7 +25,7 @@ class PublishArticle(MethodView):
             "articleBody": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam id voluptatibus numquam temporibus iure ipsum architecto nobis suscipit, veniam fugiat qui ex a aperiam maiores aut quaerat. Temporibus, architecto natus!\n"
             + "Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam id voluptatibus numquam temporibus iure ipsum architecto nobis suscipit, veniam fugiat qui ex a aperiam maiores aut quaerat. Temporibus, architecto natus!\n"
             + "Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam id voluptatibus numquam temporibus iure ipsum architecto nobis suscipit, veniam fugiat qui ex a aperiam maiores aut quaerat. Temporibus, architecto natus!",
-            "publishDateTime": currentDateTime.isoformat(),
+            "publishDateTime": currentDateTime,
             "nanoId": nanoId,
         }
         try:
@@ -33,7 +33,7 @@ class PublishArticle(MethodView):
             return {
                 "title": article["title"],
                 "nanoId": article["nanoId"],
-                "publishTime": currentDateTime.isoformat(),
+                "publishTime": currentDateTime,
             }
         except Exception as error:
             print(error)
@@ -58,25 +58,21 @@ class SingleArticle(MethodView):
     @article.response(200, SingleArticleSchema)
     def get(this, nanoId):
         data = {"article": mongo.db.articles.find_one({"nanoId": nanoId})}
-        prev = (
-            mongo.db.articles.find({"_id": {"$gt": data["article"]["_id"]}})
-            .sort("_id", -1)
-            .limit(1)
+        prev = mongo.db.articles.find({"_id": {"$lt": data["article"]["_id"]}}).sort(
+            "_id"
         )
-        next = (
-            mongo.db.articles.find({"_id": {"$gt": data["article"]["_id"]}})
-            .sort("_id")
-            .limit(1)
+        next = mongo.db.articles.find({"_id": {"$gt": data["article"]["_id"]}}).sort(
+            "_id"
         )
-        print(prev)
-        print(next)
+        print(prev[0])
+        print(next[0])
 
-        if prev[0] is not None:
-            data["prevNanoId"] = prev[0]["nanoId"]
-            data["prevTitle"] = prev[0]["title"]
-        if next[0] is not None:
-            data["nextNanoId"] = next[0]["nanoId"]
-            data["nextTitle"] = next[0]["title"]
+        # if prev[0] is not None:
+        #     data["prevNanoId"] = prev[0]["nanoId"]
+        #     data["prevTitle"] = prev[0]["title"]
+        # if next[0] is not None:
+        #     data["nextNanoId"] = next[0]["nanoId"]
+        #     data["nextTitle"] = next[0]["title"]
 
         return data
 
