@@ -1,7 +1,7 @@
 from flask import request, jsonify
 from flask.views import MethodView
 from flask_smorest import Blueprint
-from schemas import ArticleSchema, PageCountSchema
+from schemas import ArticleSchema, PageCountSchema, SingleArticleSchema
 from datetime import datetime
 from nanoid import generate
 import math
@@ -58,12 +58,27 @@ class ArticleListPage(MethodView):
         ]
 
 
-@article.route("/article/<string:article_id>")
+@article.route("/article/single/<string:nanoId>")
 class SingleArticle(MethodView):
-    @article.response(200)
-    def get(this, article_id):
-        article = mongo.db.get_collection("articles").find_one({"nanoid": article_id})
-        return article
+    @article.response(200, SingleArticleSchema)
+    def get(this, nanoId):
+        data = {"article": mongo.db.articles.find_one({"nanoId": nanoId})}
+        prev = (
+            mongo.db.articles.find({"_id": {"$gt": data["article"]["_id"]}})
+            .sort("_id", -1)
+            .limit(1)
+        )
+        next = (
+            mongo.db.articles.find({"_id": {"$gt": data["article"]["_id"]}})
+            .sort("_id")
+            .limit(1)
+        )
+        if prev[0] is not None:
+            data["prev"] = prev[0]["nanoId"]
+        if next[0] is not None:
+            data["next"] = next[0]["nanoId"]
+
+        return data
 
 
 @article.route("/article/pageCount")

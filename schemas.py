@@ -12,3 +12,9 @@ class ArticleSchema(Schema):
 
 class PageCountSchema(Schema):
     pageCount = fields.Number(required=True)
+
+
+class SingleArticleSchema(Schema):
+    article = fields.Nested(lambda: ArticleSchema(), required=True)
+    prev = fields.String()
+    next = fields.String()
