@@ -20,17 +20,12 @@ class PublishArticle(MethodView):
         while mongo.db.articles.count_documents({"nanoId": nanoId}) != 0:
             nanoId = generate(size=6)
         currentDateTime = datetime.now()
-        publishDate = (
-            f"{currentDateTime.year}/{currentDateTime.month}/{currentDateTime.day}"
-        )
-        publishTime = f"{currentDateTime.hour}:{currentDateTime.minute} {TIMEZONE}"
         article = {
             "title": "article title " + nanoId,
             "articleBody": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam id voluptatibus numquam temporibus iure ipsum architecto nobis suscipit, veniam fugiat qui ex a aperiam maiores aut quaerat. Temporibus, architecto natus!\n"
             + "Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam id voluptatibus numquam temporibus iure ipsum architecto nobis suscipit, veniam fugiat qui ex a aperiam maiores aut quaerat. Temporibus, architecto natus!\n"
             + "Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam id voluptatibus numquam temporibus iure ipsum architecto nobis suscipit, veniam fugiat qui ex a aperiam maiores aut quaerat. Temporibus, architecto natus!",
-            "publishDate": publishDate,
-            "publishTime": publishTime,
+            "publishDateTime": currentDateTime.isoformat(),
             "nanoId": nanoId,
         }
         try:
@@ -38,7 +33,7 @@ class PublishArticle(MethodView):
             return {
                 "title": article["title"],
                 "nanoId": article["nanoId"],
-                "publishTime": publishTime,
+                "publishTime": currentDateTime.isoformat(),
             }
         except Exception as error:
             print(error)
@@ -52,7 +47,7 @@ class ArticleListPage(MethodView):
         offset = (page - 1) * PAGE_SIZE
         return [
             i
-            for i in mongo.db.articles.find().sort("publishDate", -1)[
+            for i in mongo.db.articles.find().sort("publishDateTime", -1)[
                 offset : offset + PAGE_SIZE
             ]
         ]
@@ -73,10 +68,15 @@ class SingleArticle(MethodView):
             .sort("_id")
             .limit(1)
         )
+        print(prev)
+        print(next)
+
         if prev[0] is not None:
-            data["prev"] = prev[0]["nanoId"]
+            data["prevNanoId"] = prev[0]["nanoId"]
+            data["prevTitle"] = prev[0]["title"]
         if next[0] is not None:
-            data["next"] = next[0]["nanoId"]
+            data["nextNanoId"] = next[0]["nanoId"]
+            data["nextTitle"] = next[0]["title"]
 
         return data
 
