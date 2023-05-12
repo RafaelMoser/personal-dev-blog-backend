@@ -2,13 +2,14 @@ from flask import Flask
 from flask_cors import CORS
 from flask_smorest import Api
 from dotenv import dotenv_values
+from flask_jwt_extended import JWTManager
 
 from db import mongo
 
 from resources.blog_articles import article
 from resources.personal_info import personalInfo
 
-config = dotenv_values()
+dotEnv = dotenv_values()
 
 
 def create_app():
@@ -24,11 +25,15 @@ def create_app():
     app.config[
         "OPENAPI_SWAGGER_UI_URL"
     ] = "https://cdn.jsdelivr.net/npm/swagger-ui-dist/"
-    app.config["MONGO_URI"] = config["MONGODB_URI"]
+    app.config["MONGO_URI"] = dotEnv["MONGODB_URI"]
+    app.config["JWT_SECRET_KEY"] = dotEnv["JWT_SECRET_JEY"]
 
     mongo.init_app(app)
 
     api = Api(app)
+
+    jwt = JWTManager(app)
+
     api.register_blueprint(article)
     api.register_blueprint(personalInfo)
 

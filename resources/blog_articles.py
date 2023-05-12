@@ -1,4 +1,4 @@
-from flask import request, jsonify
+from flask import jsonify
 from flask.views import MethodView
 from flask_smorest import Blueprint
 from schemas import ArticleSchema, PageCountSchema, SingleArticleSchema
@@ -15,7 +15,7 @@ article = Blueprint("articles", __name__, description="Articles")
 
 @article.route("/newarticle/dummy")
 class PublishArticle(MethodView):
-    def get(this):
+    def get(self):
         nanoId = generate(size=6)
         while mongo.db.articles.count_documents({"nanoId": nanoId}) != 0:
             nanoId = generate(size=6)
@@ -43,7 +43,7 @@ class PublishArticle(MethodView):
 @article.route("/article/list/<int:page>")
 class ArticleListPage(MethodView):
     @article.response(200, ArticleSchema(many=True))
-    def get(this, page):
+    def get(self, page):
         offset = (page - 1) * PAGE_SIZE
         return [
             i
@@ -56,7 +56,7 @@ class ArticleListPage(MethodView):
 @article.route("/article/single/<string:nanoId>")
 class SingleArticle(MethodView):
     @article.response(200, SingleArticleSchema)
-    def get(this, nanoId):
+    def get(self, nanoId):
         data = {"article": mongo.db.articles.find_one({"nanoId": nanoId})}
         prev = list(
             mongo.db.articles.find({"_id": {"$lt": data["article"]["_id"]}})
@@ -82,7 +82,7 @@ class SingleArticle(MethodView):
 @article.route("/article/pageCount")
 class PageCount(MethodView):
     @article.response(200, PageCountSchema)
-    def get(this):
+    def get(self):
         return {
             "pageCount": math.ceil(mongo.db.articles.count_documents({}) / PAGE_SIZE)
         }

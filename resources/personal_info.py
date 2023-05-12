@@ -12,7 +12,7 @@ personalInfo = Blueprint("personalInfo", __name__, description="Personal Informa
 
 @personalInfo.route("/aboutme/")
 class ProfilePicture(MethodView):
-    def get(this):
+    def get(self):
         data = mongo.db.get_collection("personal-info").find_one(
             {"_id": PERSONAL_INFO_ID}
         )
