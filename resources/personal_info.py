@@ -5,7 +5,7 @@ from flask_pymongo import ObjectId
 from db import mongo
 from schemas import BlogInfoSchema
 
-PERSONAL_INFO_ID = ObjectId("645692cc0b436ad55e7c0f1d")
+PERSONAL_INFO_ID = ObjectId("645e4b2eafb760dd061db731")
 
 personalInfo = Blueprint("personalInfo", __name__, description="Personal Information")
 
@@ -14,6 +14,4 @@ personalInfo = Blueprint("personalInfo", __name__, description="Personal Informa
 class ProfilePicture(MethodView):
     @personalInfo.response(200, BlogInfoSchema)
     def get(self):
-        return mongo.db.get_collection("personal-info").find_one(
-            {"_id": PERSONAL_INFO_ID}
-        )
+        return mongo.db.bloginfo.find_one({"_id": PERSONAL_INFO_ID})
