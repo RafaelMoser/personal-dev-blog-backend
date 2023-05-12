@@ -1,6 +1,15 @@
 from marshmallow import Schema, fields
 
 
+class BlogInfoSchema(Schema):
+    id = fields.String(dump_only=True)
+    profileImageUrl = fields.String(required=True)
+    infoBlurb = fields.String(required=True)
+    github = fields.String()
+    linkedIn = fields.String()
+    gmail = fields.String()
+
+
 class ArticleSchema(Schema):
     id = fields.String(dump_only=True)
     nanoId = fields.String(dump_only=True, unique=True)
