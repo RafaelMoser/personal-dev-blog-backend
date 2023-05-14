@@ -26,7 +26,7 @@ def create_app():
         "OPENAPI_SWAGGER_UI_URL"
     ] = "https://cdn.jsdelivr.net/npm/swagger-ui-dist/"
     app.config["MONGO_URI"] = dotEnv["MONGODB_URI"]
-    app.config["JWT_SECRET_KEY"] = dotEnv["JWT_SECRET_JEY"]
+    app.config["JWT_SECRET_KEY"] = dotEnv["JWT_SECRET_KEY"]
 
     mongo.init_app(app)
 
