@@ -6,7 +6,7 @@ class BlogInfoSchema(Schema):
     profileImageUrl = fields.String(required=True)
     infoBlurb = fields.String(required=True)
     github = fields.String()
-    linkedIn = fields.String()
+    linkedin = fields.String()
     gmail = fields.String()
 
 
