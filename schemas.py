@@ -10,6 +10,16 @@ class BlogInfoSchema(Schema):
     gmail = fields.String()
 
 
+class BlogInfoUpdateSchema(Schema):
+    id = fields.String(dump_only=True)
+    profileImageUrl = fields.String(required=True)
+    infoBlurb = fields.String(required=True)
+    aboutMe = fields.String(required=True)
+    github = fields.String()
+    linkedin = fields.String()
+    gmail = fields.String()
+
+
 class ArticleSchema(Schema):
     id = fields.String(dump_only=True)
     nanoId = fields.String(dump_only=True, unique=True)

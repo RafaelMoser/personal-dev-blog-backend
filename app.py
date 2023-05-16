@@ -7,7 +7,7 @@ from flask_jwt_extended import JWTManager
 from db import mongo
 
 from resources.blog_articles import article
-from resources.personal_info import personalInfo
+from resources.blog_info import blogInfo
 
 dotEnv = dotenv_values()
 
@@ -35,6 +35,6 @@ def create_app():
     jwt = JWTManager(app)
 
     api.register_blueprint(article)
-    api.register_blueprint(personalInfo)
+    api.register_blueprint(blogInfo)
 
     return app
