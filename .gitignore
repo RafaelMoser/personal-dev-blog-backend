@@ -1,9 +1,5 @@
 .venv
 .env
-__pycache__/app.cpython-311.pyc
-__pycache__/db.cpython-311.pyc
-__pycache__/schemas.cpython-311.pyc
+__pycache__/
 .vscode/settings.json
-resources/__pycache__/__init__.cpython-311.pyc
-resources/__pycache__/blog_articles.cpython-311.pyc
-resources/__pycache__/personal_info.cpython-311.pyc
+resources/__pycache__/

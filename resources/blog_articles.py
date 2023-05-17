@@ -1,4 +1,4 @@
-from flask import jsonify
+from flask import jsonify, request
 from flask.views import MethodView
 from flask_smorest import Blueprint
 from schemas import ArticleSchema, PageCountSchema, SingleArticleSchema
@@ -9,7 +9,6 @@ import math
 from db import mongo
 
 PAGE_SIZE = 3
-TIMEZONE = "BRT"
 article = Blueprint("articles", __name__, description="Articles")
 
 
@@ -25,6 +24,29 @@ class PublishArticle(MethodView):
             "articleBody": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam id voluptatibus numquam temporibus iure ipsum architecto nobis suscipit, veniam fugiat qui ex a aperiam maiores aut quaerat. Temporibus, architecto natus!\n"
             + "Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam id voluptatibus numquam temporibus iure ipsum architecto nobis suscipit, veniam fugiat qui ex a aperiam maiores aut quaerat. Temporibus, architecto natus!\n"
             + "Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam id voluptatibus numquam temporibus iure ipsum architecto nobis suscipit, veniam fugiat qui ex a aperiam maiores aut quaerat. Temporibus, architecto natus!",
+            "publishDateTime": currentDateTime,
+            "nanoId": nanoId,
+        }
+        try:
+            mongo.db.articles.insert_one(article)
+            return {
+                "title": article["title"],
+                "nanoId": article["nanoId"],
+                "publishTime": currentDateTime,
+            }
+        except Exception as error:
+            print(error)
+            return jsonify({"E": error.__str__})
+
+    def post(self):
+        data = request.json
+        nanoId = generate(size=6)
+        while mongo.db.articles.count_documents({"nanoId": nanoId}) != 0:
+            nanoId = generate(size=6)
+        currentDateTime = datetime.now()
+        article = {
+            "title": data.title,
+            "articleBody": data.articleBody,
             "publishDateTime": currentDateTime,
             "nanoId": nanoId,
         }
