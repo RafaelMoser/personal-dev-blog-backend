@@ -24,7 +24,6 @@ class BlogInfoUpdater(MethodView):
     def get(self):
         return mongo.db.bloginfo.find_one({"_id": BLOG_INFO_ID})
 
-    @blogInfo.response
     def patch(self):
         data = request.json
         mongo.db.bloginfo.update_one({"_id": BLOG_INFO_ID}, data)
