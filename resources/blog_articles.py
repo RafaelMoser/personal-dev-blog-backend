@@ -85,6 +85,18 @@ class SingleArticle(MethodView):
         except Exception as error:
             print(error)
             return jsonify({"error": error.__str__}),400
+    
+    @jwt_required()
+    @article.response(201,ArticleSchema)
+    def delete(self, nanoId):
+        try:
+            article = mongo.db.articles.find_one({"nanoId": nanoId})
+            mongo.db.articles.delete_one({"nanoId":nanoId})
+            return article
+        except Exception as error:
+            print(error)
+            return jsonify({"error": error.__str__}),400
+
 
 @article.route("/article/pageCount")
 class PageCount(MethodView):
