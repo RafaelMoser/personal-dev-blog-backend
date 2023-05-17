@@ -67,7 +67,7 @@ class SingleArticle(MethodView):
             print(error)
             return jsonify({"error": error.__str__}),400
     
-    @jwt_required()
+    @jwt_required(fresh=True)
     @article.response(201,ArticleSchema)
     def delete(self, nanoId):
         try:
