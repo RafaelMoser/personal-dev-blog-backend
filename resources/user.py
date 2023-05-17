@@ -1,11 +1,11 @@
 from flask.views import MethodView
 from flask_smorest import abort, Blueprint
 from passlib.hash import pbkdf2_sha256
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt
 
 from schemas import UserSchema
 from db import mongo
-
+from blocklist import BLOCKLIST
 userLogin = Blueprint("Login", __name__, description="login API endpoint")
 
 
@@ -20,3 +20,11 @@ class UserLogin(MethodView):
             return {"access_token": access_token}, 200
 
         abort(401, message="Incorrect Username or password")
+
+@userLogin.route("/logout")
+class UserLogout(MethodView):
+    @jwt_required
+    def post(self):
+        jti = get_jwt()["jti"]
+        BLOCKLIST.add(jti)
+        return {"message": "Successfuly logged out."}

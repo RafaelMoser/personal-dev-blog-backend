@@ -5,6 +5,7 @@ from dotenv import dotenv_values
 from flask_jwt_extended import JWTManager
 
 from db import mongo
+from blocklist import BLOCKLIST
 
 from resources.blog_articles import article
 from resources.blog_info import blogInfo
@@ -34,6 +35,14 @@ def create_app():
 
     jwt = JWTManager(app)
 
+    @jwt.token_in_blocklist_loader
+    def check_jwt_in_blocklist(jwt_header, jwt_payload):
+        return jwt_payload["jti"] in BLOCKLIST
+
+    @jwt.revoked_token_loader
+    def revoked_token_callback(jwt_header,jwt_payload):
+        return jsonify({"message":"The token has been revoked.","error":"token_revoked"}),401
+    
     @jwt.expired_token_loader
     def expired_token_callback(jwt_header,jwt_payload):
         return jsonify({"message":"The token has expired.","error":"token_expired"}),401
