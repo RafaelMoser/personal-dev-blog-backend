@@ -1,3 +1,9 @@
+"""
+user.py
+
+login related API endpoints
+"""
+
 from flask.views import MethodView
 from flask_smorest import abort, Blueprint
 from passlib.hash import pbkdf2_sha256

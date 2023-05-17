@@ -10,6 +10,8 @@ mongo = PyMongo()
 
 page_size = -1
 
+#Article related db calls
+
 def get_page_size():
     if page_size == -1:
         page_size = mongo.db.blogconfig.find_one()["pageSize"]
@@ -21,11 +23,7 @@ def generate_nanoId():
         nanoId = generate(size=6)
     return nanoId
 
-def get_blog_info():
-    return mongo.db.bloginfo.find_one()
 
-def update_blog_info(update_data):
-    mongo.db.bloginfo.update_one({}, update_data)
 
 def insert_article(article):
     mongo.db.articles.insert_one(article)
@@ -65,6 +63,17 @@ def get_adjacent_articles_nanoId_title(article):
         data["nextNanoId"] = next[0]["nanoId"]
         data["nextTitle"] = next[0]["title"]
     return data
+
+
+#Blog info related db calls
+
+def get_blog_info():
+    return mongo.db.bloginfo.find_one()
+
+def update_blog_info(update_data):
+    mongo.db.bloginfo.update_one({}, update_data)
+
+#Login related db calls
 
 def get_user_data(user_data):
     return mongo.db.users.find_one({"username": user_data["username"]})

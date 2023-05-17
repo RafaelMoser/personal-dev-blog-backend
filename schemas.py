@@ -1,5 +1,10 @@
-from marshmallow import Schema, fields
+"""
+schemas.py
 
+schemas for API request filtering
+"""
+
+from marshmallow import Schema, fields
 
 class BlogInfoSchema(Schema):
     id = fields.String(dump_only=True)
