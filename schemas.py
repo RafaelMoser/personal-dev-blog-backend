@@ -20,11 +20,16 @@ class BlogInfoUpdateSchema(Schema):
     gmail = fields.String()
 
 
+class NewArticleSchema(Schema):
+    title = fields.String(required=True)
+    articleBody = fields.String(required=True)
+
 class ArticleSchema(Schema):
     id = fields.String(dump_only=True)
     nanoId = fields.String(dump_only=True, unique=True)
     title = fields.String(required=True)
     publishDateTime = fields.DateTime(required=True)
+    lastUpdateDateTime = fields.DateTime()
     articleBody = fields.String(required=True)
 
 

@@ -1,6 +1,7 @@
 from flask import jsonify, request
 from flask.views import MethodView
 from flask_smorest import Blueprint
+from flask_jwt_extended import jwt_required
 from schemas import ArticleSchema, PageCountSchema, SingleArticleSchema
 from datetime import datetime
 from nanoid import generate
@@ -12,54 +13,28 @@ PAGE_SIZE = 3
 article = Blueprint("articles", __name__, description="Articles")
 
 
-@article.route("/newarticle/dummy")
+@article.route("/article/new")
 class PublishArticle(MethodView):
-    def get(self):
+    @jwt_required()
+    @article.arguments(NewArticleSchema)
+    @article.response(201, ArticleSchema)
+    def post(self, article_data):
         nanoId = generate(size=6)
         while mongo.db.articles.count_documents({"nanoId": nanoId}) != 0:
             nanoId = generate(size=6)
         currentDateTime = datetime.now()
-        article = {
-            "title": "article title " + nanoId,
-            "articleBody": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam id voluptatibus numquam temporibus iure ipsum architecto nobis suscipit, veniam fugiat qui ex a aperiam maiores aut quaerat. Temporibus, architecto natus!\n"
-            + "Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam id voluptatibus numquam temporibus iure ipsum architecto nobis suscipit, veniam fugiat qui ex a aperiam maiores aut quaerat. Temporibus, architecto natus!\n"
-            + "Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam id voluptatibus numquam temporibus iure ipsum architecto nobis suscipit, veniam fugiat qui ex a aperiam maiores aut quaerat. Temporibus, architecto natus!",
+        newArticle = {
+            "title": article_data.title,
+            "articleBody": article_data.articleBody,
             "publishDateTime": currentDateTime,
             "nanoId": nanoId,
         }
         try:
             mongo.db.articles.insert_one(article)
-            return {
-                "title": article["title"],
-                "nanoId": article["nanoId"],
-                "publishTime": currentDateTime,
-            }
+            return newArticle
         except Exception as error:
             print(error)
-            return jsonify({"E": error.__str__})
-
-    def post(self):
-        data = request.json
-        nanoId = generate(size=6)
-        while mongo.db.articles.count_documents({"nanoId": nanoId}) != 0:
-            nanoId = generate(size=6)
-        currentDateTime = datetime.now()
-        article = {
-            "title": data.title,
-            "articleBody": data.articleBody,
-            "publishDateTime": currentDateTime,
-            "nanoId": nanoId,
-        }
-        try:
-            mongo.db.articles.insert_one(article)
-            return {
-                "title": article["title"],
-                "nanoId": article["nanoId"],
-                "publishTime": currentDateTime,
-            }
-        except Exception as error:
-            print(error)
-            return jsonify({"E": error.__str__})
+            return jsonify({"error": error.__str__}),400
 
 
 @article.route("/article/list/<int:page>")
@@ -97,9 +72,19 @@ class SingleArticle(MethodView):
         if len(next) != 0:
             data["nextNanoId"] = next[0]["nanoId"]
             data["nextTitle"] = next[0]["title"]
-
         return data
 
+    @jwt_required()
+    @article.arguments(ArticleSchema)
+    @article.response(201,ArticleSchema)
+    def patch(self, article_data):
+        article_data["lastUpdateDateIme"] = datetime.now()
+        try:
+            mongo.db.articles.update_one({"nanoId":article["nanoId"],article)
+            return article_data
+        except Exception as error:
+            print(error)
+            return jsonify({"error": error.__str__}),400
 
 @article.route("/article/pageCount")
 class PageCount(MethodView):
