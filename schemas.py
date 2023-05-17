@@ -9,6 +9,8 @@ class BlogInfoSchema(Schema):
     linkedin = fields.String()
     gmail = fields.String()
 
+class AboutMeSchema(Schema):
+    aboutMe = fields.String(required=True)
 
 class BlogInfoUpdateSchema(Schema):
     id = fields.String(dump_only=True)
@@ -18,7 +20,6 @@ class BlogInfoUpdateSchema(Schema):
     github = fields.String()
     linkedin = fields.String()
     gmail = fields.String()
-
 
 class NewArticleSchema(Schema):
     title = fields.String(required=True)
@@ -32,10 +33,8 @@ class ArticleSchema(Schema):
     lastUpdateDateTime = fields.DateTime()
     articleBody = fields.String(required=True)
 
-
 class PageCountSchema(Schema):
     pageCount = fields.Number(required=True)
-
 
 class SingleArticleSchema(Schema):
     article = fields.Nested(lambda: ArticleSchema(), required=True)
@@ -43,7 +42,6 @@ class SingleArticleSchema(Schema):
     prevTitle = fields.String()
     nextNanoId = fields.String()
     nextTitle = fields.String()
-
 
 class UserSchema(Schema):
     id = fields.String(dump_only=True)

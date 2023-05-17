@@ -13,7 +13,7 @@ userLogin = Blueprint("Login", __name__, description="login API endpoint")
 class UserLogin(MethodView):
     @userLogin.arguments(UserSchema)
     def post(self, user_data):
-        user = mongo.db.users.find_one({"username": user_data["username"]})
+        user = db.get_user_data(user_data)
 
         if user and pbkdf2_sha256.verify(user_data["password"], user["password"]):
             access_token = create_access_token(identity=str(user["_id"]))

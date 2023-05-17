@@ -1,3 +1,9 @@
+"""
+blog_articles.py
+
+article related API endpoints
+"""
+
 from flask import jsonify, request
 from flask.views import MethodView
 from flask_smorest import Blueprint
@@ -7,11 +13,9 @@ from datetime import datetime
 from nanoid import generate
 import math
 
-from db import mongo
+import db
 
-PAGE_SIZE = 3
 article = Blueprint("articles", __name__, description="Articles")
-
 
 @article.route("/article/new")
 class PublishArticle(MethodView):
@@ -19,9 +23,7 @@ class PublishArticle(MethodView):
     @article.arguments(NewArticleSchema)
     @article.response(201, ArticleSchema)
     def post(self, article_data):
-        nanoId = generate(size=6)
-        while mongo.db.articles.count_documents({"nanoId": nanoId}) != 0:
-            nanoId = generate(size=6)
+        nanoId = db.generate_nanoId()
         currentDateTime = datetime.now()
         newArticle = {
             "title": article_data.title,
@@ -30,7 +32,7 @@ class PublishArticle(MethodView):
             "nanoId": nanoId,
         }
         try:
-            mongo.db.articles.insert_one(article)
+            db.insert_article(article)
             return newArticle
         except Exception as error:
             print(error)
@@ -41,37 +43,16 @@ class PublishArticle(MethodView):
 class ArticleListPage(MethodView):
     @article.response(200, ArticleSchema(many=True))
     def get(self, page):
-        offset = (page - 1) * PAGE_SIZE
-        return [
-            i
-            for i in mongo.db.articles.find().sort("publishDateTime", -1)[
-                offset : offset + PAGE_SIZE
-            ]
-        ]
+        return db.get_article_page(page)
 
 
 @article.route("/article/single/<string:nanoId>")
 class SingleArticle(MethodView):
     @article.response(200, SingleArticleSchema)
     def get(self, nanoId):
-        data = {"article": mongo.db.articles.find_one({"nanoId": nanoId})}
-        prev = list(
-            mongo.db.articles.find({"_id": {"$lt": data["article"]["_id"]}})
-            .sort([("_id", -1)])
-            .limit(1)
-        )
-        next = list(
-            mongo.db.articles.find({"_id": {"$gt": data["article"]["_id"]}})
-            .sort("_id")
-            .limit(1)
-        )
-
-        if len(prev) != 0:
-            data["prevNanoId"] = prev[0]["nanoId"]
-            data["prevTitle"] = prev[0]["title"]
-        if len(next) != 0:
-            data["nextNanoId"] = next[0]["nanoId"]
-            data["nextTitle"] = next[0]["title"]
+        article = db_get_article(nanoId)
+        data = db.get_adjacent_nanoId_title(article)
+        data["article"] = article
         return data
 
     @jwt_required()
@@ -80,7 +61,7 @@ class SingleArticle(MethodView):
     def patch(self, article_data):
         article_data["lastUpdateDateIme"] = datetime.now()
         try:
-            mongo.db.articles.update_one({"nanoId":article["nanoId"],article)
+            db.update_article(article_data)
             return article_data
         except Exception as error:
             print(error)
@@ -90,8 +71,8 @@ class SingleArticle(MethodView):
     @article.response(201,ArticleSchema)
     def delete(self, nanoId):
         try:
-            article = mongo.db.articles.find_one({"nanoId": nanoId})
-            mongo.db.articles.delete_one({"nanoId":nanoId})
+            article = db.get_article(nanoId)
+            db.delete_article(nanoId)
             return article
         except Exception as error:
             print(error)
@@ -103,5 +84,5 @@ class PageCount(MethodView):
     @article.response(200, PageCountSchema)
     def get(self):
         return {
-            "pageCount": math.ceil(mongo.db.articles.count_documents({}) / PAGE_SIZE)
+            "pageCount": math.ceil(db.get_article_count() / db.get_page_size())
         }
