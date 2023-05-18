@@ -4,16 +4,16 @@ blog_info.py
 blog configuration and general data API endpoints
 """
 
-from flask import request
+from flask import jsonify
 from flask.views import MethodView
 from flask_smorest import Blueprint
-from flask_pymongo import ObjectId
-from jwt import jwt_required
+from flask_jwt_extended import jwt_required
 
-from schemas import BlogInfoSchema, BlogInfoUpdateSchema
+from schemas import BlogInfoSchema, BlogInfoUpdateSchema, AboutMeSchema
 import db
 
 blogInfo = Blueprint("personalInfo", __name__, description="Personal Information")
+
 
 @blogInfo.route("/blogInfo/")
 class SidebarInfo(MethodView):
@@ -27,6 +27,7 @@ class AboutMe(MethodView):
     @blogInfo.response(200, AboutMeSchema)
     def get(self):
         return db.get_blog_info()
+
 
 @blogInfo.route("/admin/profile")
 class BlogInfoUpdater(MethodView):
@@ -43,5 +44,4 @@ class BlogInfoUpdater(MethodView):
             return update_data
         except Exception as error:
             print(error)
-            return jsonify({"error": error.__str__}),400
-
+            return jsonify({"error": error.__str__}), 400
