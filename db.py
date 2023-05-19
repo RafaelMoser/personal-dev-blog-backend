@@ -93,3 +93,13 @@ def update_blog_info(update_data):
 
 def get_user_data(user_data):
     return mongo.db.users.find_one({"username": user_data["username"]})
+
+
+def register_user(user_data):
+    return mongo.db.users.insert_one(
+        {"username": user_data["username"], "password": user_data["password"]}
+    )
+
+
+def user_exists(username):
+    return mongo.db.users.count_documents({"username": username}) != 0
