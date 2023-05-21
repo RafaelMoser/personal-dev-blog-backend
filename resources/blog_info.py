@@ -31,6 +31,7 @@ class AboutMe(MethodView):
 
 @blogInfo.route("/admin/profile")
 class BlogInfoUpdater(MethodView):
+    @jwt_required()
     @blogInfo.response(200, BlogInfoUpdateSchema)
     def get(self):
         return db.get_blog_info()
@@ -39,6 +40,7 @@ class BlogInfoUpdater(MethodView):
     @blogInfo.arguments(BlogInfoUpdateSchema)
     @blogInfo.response(201, BlogInfoUpdateSchema)
     def patch(self, update_data):
+        print("it's in")
         try:
             db.update_blog_info(update_data)
             return update_data

@@ -85,7 +85,7 @@ def get_blog_info():
 
 
 def update_blog_info(update_data):
-    mongo.db.bloginfo.update_one({}, update_data)
+    mongo.db.bloginfo.replace_one({}, update_data)
 
 
 # Login related db calls
