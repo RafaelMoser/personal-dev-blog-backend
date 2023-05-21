@@ -13,6 +13,7 @@ from schemas import (
     PageCountSchema,
     SingleArticleSchema,
     NewArticleSchema,
+    UpdateArticleSchema,
 )
 from datetime import datetime
 import math
@@ -27,17 +28,17 @@ class PublishArticle(MethodView):
     @jwt_required()
     @article.arguments(NewArticleSchema)
     @article.response(201, ArticleSchema)
-    def post(self, article_data):
+    def put(self, article_data):
         nanoId = db.generate_nanoId()
         currentDateTime = datetime.now()
         newArticle = {
-            "title": article_data.title,
-            "articleBody": article_data.articleBody,
+            "title": article_data["title"],
+            "articleBody": article_data["articleBody"],
             "publishDateTime": currentDateTime,
             "nanoId": nanoId,
         }
         try:
-            db.insert_article(article)
+            db.insert_article(newArticle)
             return newArticle
         except Exception as error:
             print(error)
@@ -55,18 +56,22 @@ class ArticleListPage(MethodView):
 class SingleArticle(MethodView):
     @article.response(200, SingleArticleSchema)
     def get(self, nanoId):
-        article = db_get_article(nanoId)
-        data = db.get_adjacent_nanoId_title(article)
+        article = db.get_article(nanoId)
+        data = db.get_adjacent_articles_nanoId_title(article)
         data["article"] = article
         return data
 
     @jwt_required()
-    @article.arguments(ArticleSchema)
+    @article.arguments(UpdateArticleSchema)
     @article.response(201, ArticleSchema)
-    def patch(self, article_data):
-        article_data["lastUpdateDateIme"] = datetime.now()
+    def patch(self, article_data, nanoId):
+        article_data["lastUpdateDateTime"] = datetime.now()
+        print("--------------------------")
+        print(article_data)
+        print(nanoId)
+        print("--------------------------")
         try:
-            db.update_article(article_data)
+            db.update_article(article_data, nanoId)
             return article_data
         except Exception as error:
             print(error)

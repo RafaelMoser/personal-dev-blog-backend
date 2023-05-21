@@ -42,7 +42,7 @@ class BlogInfoUpdater(MethodView):
     def patch(self, update_data):
         print("it's in")
         try:
-            db.update_blog_info(update_data)
+            db.replace_blog_info(update_data)
             return update_data
         except Exception as error:
             print(error)

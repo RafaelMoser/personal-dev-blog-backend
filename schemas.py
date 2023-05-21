@@ -44,6 +44,11 @@ class ArticleSchema(Schema):
     articleBody = fields.String(required=True)
 
 
+class UpdateArticleSchema(Schema):
+    title = fields.String(required=True)
+    articleBody = fields.String(required=True)
+
+
 class PageCountSchema(Schema):
     pageCount = fields.Number(required=True)
 

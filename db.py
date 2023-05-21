@@ -32,8 +32,15 @@ def insert_article(article):
     mongo.db.articles.insert_one(article)
 
 
-def update_article(article):
-    mongo.db.articles.update_one({"nanoId": article["nanoId"]}, article)
+def update_article(article, nanoId):
+    new_values = {
+        "$set": {
+            "title": article["title"],
+            "articleBody": article["articleBody"],
+            "lastUpdateDateTime": article["lastUpdateDateTime"],
+        }
+    }
+    mongo.db.articles.update_one({"nanoId": nanoId}, new_values)
 
 
 def get_article(nanoId):
@@ -84,7 +91,7 @@ def get_blog_info():
     return mongo.db.bloginfo.find_one()
 
 
-def update_blog_info(update_data):
+def replace_blog_info(update_data):
     mongo.db.bloginfo.replace_one({}, update_data)
 
 
