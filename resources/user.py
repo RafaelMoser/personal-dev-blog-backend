@@ -7,6 +7,7 @@ login related API endpoints
 from flask.views import MethodView
 from flask_smorest import abort, Blueprint
 from passlib.hash import pbkdf2_sha256
+from datetime import timedelta
 from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
@@ -28,8 +29,14 @@ class UserLogin(MethodView):
     def post(self, user_data):
         user = db.get_user_data(user_data)
         if user and pbkdf2_sha256.verify(user_data["password"], user["password"]):
-            access_token = create_access_token(identity=str(user["_id"]), fresh=False)
-            refresh_token = create_refresh_token(identity=str(user["_id"]))
+            access_token = create_access_token(
+                identity=str(user["_id"]),
+                fresh=True,
+                expires_delta=timedelta(minutes=30),
+            )
+            refresh_token = create_refresh_token(
+                identity=str(user["_id"]), expires_delta=timedelta(days=7)
+            )
             return {"access_token": access_token, "refresh_token": refresh_token}, 200
         abort(401, message="Incorrect Username or password")
 
@@ -39,7 +46,9 @@ class TokenRefresh(MethodView):
     @jwt_required(refresh=True)
     def post(self):
         current_user = get_jwt_identity()
-        new_token = create_access_token(identity=current_user, fresh=False)
+        new_token = create_access_token(
+            identity=current_user, fresh=False, expires_delta=timedelta(minutes=30)
+        )
         return {"access_token": new_token}
 
 
