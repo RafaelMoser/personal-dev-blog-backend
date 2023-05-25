@@ -87,12 +87,34 @@ def get_adjacent_articles_nanoId_title(article):
 # Blog info related db calls
 
 
+def get_full_blog_info():
+    return mongo.db.bloginfo.find_one({})
+
+
 def get_blog_info():
-    return mongo.db.bloginfo.find_one()
+    return mongo.db.bloginfo.find_one(
+        {},
+        {
+            "_id": 0,
+            "profileImageUrl": 1,
+            "infoBlurb": 1,
+            "github": 1,
+            "linkedin": 1,
+            "email": 1,
+        },
+    )
 
 
 def replace_blog_info(update_data):
     mongo.db.bloginfo.replace_one({}, update_data)
+
+
+def get_about_me():
+    return mongo.db.bloginfo.find_one({}, {"_id": 0, "aboutMe": 1})
+
+
+def get_blog_name():
+    return mongo.db.bloginfo.find_one({}, {"_id": 0, "blogName": 1})
 
 
 # Login related db calls

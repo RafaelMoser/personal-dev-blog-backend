@@ -9,7 +9,7 @@ from flask.views import MethodView
 from flask_smorest import Blueprint
 from flask_jwt_extended import jwt_required
 
-from schemas import BlogInfoSchema, BlogInfoUpdateSchema, AboutMeSchema
+from schemas import BlogInfoSchema, BlogInfoUpdateSchema, AboutMeSchema, BlogNameSchema
 import db
 
 blogInfo = Blueprint("personalInfo", __name__, description="Personal Information")
@@ -22,11 +22,18 @@ class SidebarInfo(MethodView):
         return db.get_blog_info()
 
 
+@blogInfo.route("/blogInfo/name")
+class BlogName(MethodView):
+    @blogInfo.response(200, BlogNameSchema)
+    def get(self):
+        return db.get_blog_name()
+
+
 @blogInfo.route("/aboutMe/")
 class AboutMe(MethodView):
     @blogInfo.response(200, AboutMeSchema)
     def get(self):
-        return db.get_blog_info()
+        return db.get_about_me()
 
 
 @blogInfo.route("/admin/profile")

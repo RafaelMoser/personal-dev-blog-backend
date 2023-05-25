@@ -8,12 +8,15 @@ from marshmallow import Schema, fields
 
 
 class BlogInfoSchema(Schema):
-    id = fields.String(dump_only=True)
     profileImageUrl = fields.String(required=True)
     infoBlurb = fields.String(required=True)
     github = fields.String()
     linkedin = fields.String()
     email = fields.String()
+
+
+class BlogNameSchema(Schema):
+    blogName = fields.String(required=True)
 
 
 class AboutMeSchema(Schema):
